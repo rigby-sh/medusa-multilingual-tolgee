@@ -1,46 +1,45 @@
 {
-  "name": "medusa-starter-default",
-  "version": "0.0.1",
-  "description": "A starter for Medusa projects.",
-  "author": "Medusa (https://medusajs.com)",
+  "name": "medusa-multilingual-tolgee",
+  "version": "1.0.0",
+  "description": "Translate your product information with ease.",
+  "author": "Rigby (https://rigbyjs.com/en)",
   "license": "MIT",
   "keywords": [
-    "sqlite",
-    "postgres",
-    "typescript",
+    "multilingual",
+    "translation",
+    "tolgee",
     "ecommerce",
     "headless",
     "medusa"
   ],
   "scripts": {
     "clean": "cross-env ./node_modules/.bin/rimraf dist",
-    "build": "cross-env npm run clean && npm run build:server && npm run build:admin",
-    "build:server": "cross-env npm run clean && tsc -p tsconfig.server.json",
-    "build:admin": "cross-env medusa-admin build",
     "watch": "cross-env tsc --watch",
     "test": "cross-env jest",
     "seed": "cross-env medusa seed -f ./data/seed.json",
     "start": "cross-env npm run build && medusa start",
-    "start:custom": "cross-env npm run build && node --preserve-symlinks --trace-warnings index.js",
-    "dev": "cross-env npm run build:server && medusa develop"
+    "start:custom": "cross-env npm run build && node --preserve-symlinks index.js",
+    "dev": "cross-env npm run build:server && medusa develop",
+    "build": "cross-env npm run clean && npm run build:server && npm run build:admin",
+    "build:server": "cross-env npm run clean && tsc -p tsconfig.json",
+    "build:admin": "cross-env medusa-admin build",
+    "prepare": "cross-env NODE_ENV=production npm run build:server && medusa-admin bundle"
   },
   "dependencies": {
     "@medusajs/admin": "^7.1.13",
-    "@medusajs/cache-inmemory": "latest",
     "@medusajs/cache-redis": "^1.9.1",
     "@medusajs/event-bus-local": "latest",
     "@medusajs/event-bus-redis": "^1.8.13",
     "@medusajs/file-local": "latest",
     "@medusajs/medusa": "^1.20.5",
+    "@medusajs/ui": "^3.0.0",
     "@tanstack/react-query": "4.22.0",
+    "@tolgee/react": "^5.25.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "16.3.1",
     "express": "^4.17.2",
-    "medusa-fulfillment-manual": "latest",
     "medusa-interfaces": "latest",
-    "medusa-payment-manual": "latest",
-    "medusa-payment-stripe": "latest",
     "prism-react-renderer": "^2.0.4",
     "typeorm": "^0.3.16"
   },
@@ -62,6 +61,12 @@
     "ts-jest": "^27.0.7",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.2"
+  },
+  "peerDependencies": {
+    "@medusajs/medusa": "^1.20.5",
+    "@tanstack/react-query": "4.22.0",
+    "@tolgee/react": "^5.25.0",
+    "@medusajs/admin": "^7.1.13"
   },
   "jest": {
     "globals": {
