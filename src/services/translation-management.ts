@@ -17,37 +17,32 @@ type MutlilingualTolgeeConfig = {
   productsKeys?: string[];
   projectId?: string;
   apiKey: string;
+  baseURL?: string;
 };
-
-const TOLGEE_BASE_URL = "https://app.tolgee.io/v2/projects/";
 
 class TranslationManagementService extends TransactionBaseService {
   protected client_: AxiosInstance;
   readonly options_: MutlilingualTolgeeConfig;
 
-  constructor(container: MedusaContainer, options: MutlilingualTolgeeConfig) {
+  constructor(container: MedusaContainer, config: MutlilingualTolgeeConfig) {
     super(container);
 
     this.client_ = axios.create({
-      baseURL: `${TOLGEE_BASE_URL}/${options.projectId}`,
+      baseURL: `${config.baseURL}/v2/projects/${config.projectId}`,
       headers: {
         Accept: "application/json",
-        "X-API-Key": options.apiKey,
+        "X-API-Key": config.apiKey,
       },
       maxBodyLength: Infinity,
     });
 
     this.options_ = {
-      ...options,
-      defaultLanguage: options.defaultLanguage ?? "en",
-      availableLanguages: options.availableLanguages ?? [
+      ...config,
+      defaultLanguage: config.defaultLanguage ?? "en",
+      availableLanguages: config.availableLanguages ?? [
         { label: "English", tag: "en" },
       ],
-      productsKeys: options.productsKeys ?? [
-        "title",
-        "subtitle",
-        "description",
-      ],
+      productsKeys: config.productsKeys ?? ["title", "subtitle", "description"],
     };
   }
 
