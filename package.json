@@ -4,7 +4,16 @@
   "description": "Translate your product information with ease.",
   "author": "Rigby (https://rigbyjs.com/en)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rigby-sh/medusa-multilingual-tolgee"
+  },
   "keywords": [
+    "medusa-plugin",
+    "medusa-plugin-admin",
+    "medusa-plugin-storefront",
+    "medusa-plugin-other",
+    "medusa-multilingual",
     "multilingual",
     "translation",
     "tolgee",
@@ -21,8 +30,8 @@
     "start:custom": "cross-env npm run build && node --preserve-symlinks index.js",
     "dev": "cross-env npm run build:server && medusa develop",
     "build": "cross-env npm run clean && npm run build:server && npm run build:admin",
-    "build:server": "cross-env npm run clean && tsc -p tsconfig.json",
     "build:admin": "cross-env medusa-admin build",
+    "build:server": "cross-env npm run clean && tsc -p tsconfig.json",
     "prepare": "cross-env NODE_ENV=production npm run build:server && medusa-admin bundle"
   },
   "dependencies": {
