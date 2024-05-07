@@ -24,26 +24,22 @@ const TranslationManagement = ({
   defaultLanguage,
   handleLanguageChange,
   refreshObserver,
-  refreshKey
+  refreshKey,
 }: Props) => {
   const { t } = useTranslate(product.id);
   const [keyNames, setKeyNames] = useState<string[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [batchJobId, setBatchJobId] = useState<string | null>(null);
-  const createBatchJob = useAdminCreateBatchJob();
+  const { mutate: syncTranslation, isLoading: syncing } =
+    useAdminCreateBatchJob();
 
-  const postProductTranslations = useAdminCustomPost<
+  const { mutate: addTranslation, isLoading: adding } = useAdminCustomPost<
     TranslationRequest,
     TranslationResponse
-  >(`/admin/product-translation?productId=${product.id}`, [
-    "productTranslation",
-  ]);
+  >(`/admin/product-translation/${product.id}`, ["productTranslation"]);
 
   const { data } = useAdminCustomQuery<RequestQuery, ResponseData>(
-    "/admin/product-translation",
-    ["keyNames", refreshKey],
-    { productId: product.id }
+    `/admin/product-translation/${product.id}`,
+    ["keyNames", refreshKey]
   );
 
   useEffect(() => {
@@ -53,29 +49,25 @@ const TranslationManagement = ({
   }, [data]);
 
   const addProductTranslation = () => {
-    setIsAdding(true);
-    postProductTranslations.mutate(
+    addTranslation(
       {
         product: product,
       },
       {
         onSuccess: () => {
           notify.success("success", "Product translations created.");
-          setIsAdding(false);
           refreshObserver();
         },
         onError: (error) => {
           console.error("Failed to create product translations:", error);
           notify.error("error", "Failed to create product translations.");
-          setIsAdding(false);
         },
       }
     );
   };
 
   const syncAllTranslations = () => {
-    setIsSyncing(true);
-    createBatchJob.mutate(
+    syncTranslation(
       {
         type: "translation-sync",
         context: {},
@@ -92,14 +84,12 @@ const TranslationManagement = ({
         onError: (error) => {
           console.error("Failed to sync all translations:", error);
           notify.error("error", "Failed to sync translations.");
-          setIsSyncing(false);
         },
       }
     );
   };
 
   const handleSyncStatus = (status: boolean) => {
-    setIsSyncing(status);
     refreshObserver();
   };
 
@@ -181,18 +171,18 @@ const TranslationManagement = ({
               <Button
                 variant="secondary"
                 className="mt-base"
-                onClick={() => addProductTranslation()}
-                disabled={isAdding}
+                onClick={addProductTranslation}
+                isLoading={adding}
               >
-                {isAdding ? "Loading..." : "Add product translations"}
+                Add product translations
               </Button>
               <Button
                 variant="secondary"
                 className="mt-base ml-2"
-                onClick={() => syncAllTranslations()}
-                disabled={isSyncing}
+                onClick={syncAllTranslations}
+                isLoading={syncing}
               >
-                {isSyncing ? "Loading..." : "Sync all translations"}
+                Sync all translations
               </Button>
               <div className="inter-small-regular text-grey-50 mt-base flex items-center ml-2">
                 {batchJobId && (

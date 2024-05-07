@@ -16,7 +16,12 @@ class TranslationSyncStrategy extends AbstractBatchJobStrategy {
   protected manager_: EntityManager;
   protected transactionManager_: EntityManager;
 
-  constructor({productService, translationManagementService, manager, batchJobService }) {
+  constructor({
+    productService,
+    translationManagementService,
+    manager,
+    batchJobService,
+  }) {
     super(arguments[0]);
     this.productService_ = productService;
     this.batchJobService_ = batchJobService;
@@ -25,26 +30,26 @@ class TranslationSyncStrategy extends AbstractBatchJobStrategy {
   }
 
   async processJob(batchJobId: string): Promise<void> {
-    return await this.atomicPhase_(
-      async (transactionManager) => {
-        const productList = await this.productService_
-          .withTransaction(transactionManager)
-          .list({});
+    return await this.atomicPhase_(async (transactionManager) => {
+      const productList = await this.productService_
+        .withTransaction(transactionManager)
+        .list({});
 
-        for (const product of productList) {
-          console.log(`Creating translations for product ${product.id}`);
-          await this.translationService_.createProductTranslations(product.id, product);
-        }
-          
-        await this.batchJobService_
-          .withTransaction(transactionManager)
-          .update(batchJobId, {
-            result: {
-              advancement_count: productList.length,
-            },
-          });
+      for (const product of productList) {
+        await this.translationService_.createProductTranslations(
+          product.id,
+          product
+        );
       }
-    );
+
+      await this.batchJobService_
+        .withTransaction(transactionManager)
+        .update(batchJobId, {
+          result: {
+            advancement_count: productList.length,
+          },
+        });
+    });
   }
 
   async buildTemplate(): Promise<string> {

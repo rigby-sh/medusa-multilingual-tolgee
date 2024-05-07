@@ -1,121 +1,160 @@
-import { TransactionBaseService, MedusaContainer } from "@medusajs/medusa";
-import tolgeeClient from "../utils/tolgeeClient";
+import {
+  TransactionBaseService,
+  MedusaContainer,
+  Product,
+} from "@medusajs/medusa";
+import { AxiosInstance, default as axios } from "axios";
+import { MedusaError } from "@medusajs/utils";
 
 type Language = {
   label: string;
   tag: string;
 };
 
-interface TranslationServiceOptions {
+type MutlilingualTolgeeConfig = {
   defaultLanguage?: string;
   availableLanguages?: Language[];
   productsKeys?: string[];
   projectId?: string;
-}
+  apiKey: string;
+};
+
+const TOLGEE_BASE_URL = "https://app.tolgee.io/v2/projects/";
 
 class TranslationManagementService extends TransactionBaseService {
-  private defaultLanguage: string;
-  private availableLanguages: Language[];
-  private productsKeys: string[];
-  private projectId: string;
+  protected client_: AxiosInstance;
+  readonly options_: MutlilingualTolgeeConfig;
 
-  constructor(container: MedusaContainer, options: TranslationServiceOptions) {
+  constructor(container: MedusaContainer, options: MutlilingualTolgeeConfig) {
     super(container);
 
-    this.defaultLanguage = options.defaultLanguage || "en";
-    this.availableLanguages = options.availableLanguages || [
-      { label: "English", tag: "en" },
-    ];
-    this.productsKeys = options.productsKeys || ["title", "subtitle", "description"];
-    this.projectId = options.projectId || "1";
+    this.client_ = axios.create({
+      baseURL: `${TOLGEE_BASE_URL}/${options.projectId}`,
+      headers: {
+        Accept: "application/json",
+        "X-API-Key": options.apiKey,
+      },
+      maxBodyLength: Infinity,
+    });
+
+    this.options_ = {
+      ...options,
+      defaultLanguage: options.defaultLanguage ?? "en",
+      availableLanguages: options.availableLanguages ?? [
+        { label: "English", tag: "en" },
+      ],
+      productsKeys: options.productsKeys ?? [
+        "title",
+        "subtitle",
+        "description",
+      ],
+    };
   }
 
-  getDefaultLanguage(): string {
-    return this.defaultLanguage;
+  getDefaultLanguage() {
+    return this.options_.defaultLanguage;
   }
 
-  getAvailableLanguages(): Language[] {
-    return this.availableLanguages;
+  getAvailableLanguages() {
+    return this.options_.availableLanguages;
   }
 
   async getNamespaceKeys(productId: string): Promise<string[]> {
     try {
-      const response = await tolgeeClient.get(
-        `${this.projectId}/keys/select?filterNamespace=${productId}`
+      const response = await this.client_.get(
+        `/keys/select?filterNamespace=${productId}`
       );
 
       return response.data.ids;
     } catch (error) {
-      console.error("Error checking namespace keys:", error);
-      throw new Error(`Failed to fetch namespace keys for product ${productId}: ${error.message}`);
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to fetch namespace keys for product ${productId}: ${error.message}`
+      );
     }
   }
 
   async getKeyName(keyId: string): Promise<string> {
     try {
-      const response = await tolgeeClient.get(
-        `${this.projectId}/keys/${keyId}`
-      );
+      const response = await this.client_.get(`/keys/${keyId}`);
 
       return response.data.name;
     } catch (error) {
-      console.error("Error checking namespace keys:", error);
-      throw new Error(`Failed to fetch key name for key ID ${keyId}: ${error.message}`);
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to fetch key name for key ID ${keyId}: ${error.message}`
+      );
     }
   }
 
-  async getProductTranslationKeys(productId: string, returnIds: boolean = false): Promise<string[] | any[]> {
+  async getProductTranslationKeys(
+    productId: string
+  ): Promise<string[] | any[]> {
     const ids = await this.getNamespaceKeys(productId);
-
-    if (ids.length === 0) return [];
-
-    if (returnIds) return ids;
 
     return await Promise.all(ids.map((keyId) => this.getKeyName(keyId)));
   }
 
-  async createNewKeyWithTranslation(productId: string, keyName: string, translation: string): Promise<any> {
+  async createNewKeyWithTranslation(
+    productId: string,
+    keyName: string,
+    translation: string
+  ): Promise<any> {
     try {
-      const response = await tolgeeClient.post(`${this.projectId}/keys`, {
+      const response = await this.client_.post(`/keys`, {
         name: `${productId}.${keyName}`,
         namespace: productId,
-        translations: { [this.defaultLanguage]: translation },
+        translations: { [this.options_.defaultLanguage]: translation },
       });
+
       return response.data;
     } catch (error) {
-      console.error("Error creating new key with translations:", error);
-      throw new Error(`Failed to create new key with translation for ${keyName}: ${error.message}`);
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to create new key with translation for ${keyName}: ${error.message}`
+      );
     }
   }
 
-  async createProductTranslations(productId: string, product: any): Promise<any[]> {
+  async createProductTranslations(
+    productId: string,
+    product: Product
+  ): Promise<any[]> {
     const results = [];
 
-    for (const productKey of this.productsKeys) {
-      try {
-        const result = await this.createNewKeyWithTranslation(productId, productKey, product[productKey]);
+    try {
+      for (const productKey of this.options_.productsKeys) {
+        const result = await this.createNewKeyWithTranslation(
+          productId,
+          productKey,
+          product[productKey]
+        );
         results.push(result);
-      } catch (error) {
-        console.error("Error creating key for:", productKey, error);
       }
+    } catch (error) {
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to create translations for product ${productId}: ${error.message}`
+      );
     }
 
     return results;
   }
 
   async deleteProductTranslations(productId: string): Promise<void> {
-    const productTranslationKeys = await this.getProductTranslationKeys(productId, true);
-
-    if (productTranslationKeys.length === 0) {
-      return;
-    }
+    const productTranslationKeys = await this.getNamespaceKeys(productId);
 
     try {
-      const response = await tolgeeClient.delete(`${this.projectId}/keys/${productTranslationKeys}`);
+      const response = await this.client_.delete(
+        `/keys/${productTranslationKeys}`
+      );
+
       return response.data;
     } catch (error) {
-      console.error("Error deleting product translations:", error);
-      throw new Error(`Failed to delete product translations for product ${productId}: ${error.message}`);
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to delete product translations for product ${productId}: ${error.message}`
+      );
     }
   }
 }
