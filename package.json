@@ -35,22 +35,7 @@
     "prepare": "cross-env NODE_ENV=production npm run build:server && medusa-admin bundle"
   },
   "dependencies": {
-    "@medusajs/admin": "^7.1.13",
-    "@medusajs/cache-redis": "^1.9.1",
-    "@medusajs/event-bus-local": "latest",
-    "@medusajs/event-bus-redis": "^1.8.13",
-    "@medusajs/file-local": "latest",
-    "@medusajs/medusa": "^1.20.5",
-    "@medusajs/ui": "^3.0.0",
-    "@tanstack/react-query": "4.22.0",
-    "@tolgee/react": "^5.25.0",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "dotenv": "16.3.1",
-    "express": "^4.17.2",
-    "medusa-interfaces": "latest",
-    "prism-react-renderer": "^2.0.4",
-    "typeorm": "^0.3.16"
+    "@tolgee/react": "^5.25.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -75,7 +60,19 @@
     "@medusajs/medusa": "^1.20.5",
     "@tanstack/react-query": "4.22.0",
     "@tolgee/react": "^5.25.0",
-    "@medusajs/admin": "^7.1.13"
+    "@medusajs/admin": "^7.1.13",
+    "@medusajs/cache-redis": "^1.9.1",
+    "@medusajs/event-bus-local": "latest",
+    "@medusajs/event-bus-redis": "^1.8.13",
+    "@medusajs/file-local": "latest",
+    "@medusajs/ui": "^3.0.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "16.3.1",
+    "express": "^4.17.2",
+    "medusa-interfaces": "latest",
+    "prism-react-renderer": "^2.0.4",
+    "typeorm": "^0.3.16"
   },
   "jest": {
     "globals": {
