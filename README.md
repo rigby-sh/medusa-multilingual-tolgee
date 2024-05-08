@@ -25,6 +25,8 @@
 
 This plugin integrates Medusa eCommerce with Tolgee, an open-source localization platform, to provide an easy translation management solution. It's designed to simplify product data translation without the need for complex CMS or PIM systems. By leveraging Tolgee, users access powerful localization features directly within their Medusa admin panel.
 
+![Medusa Multilanguage Tolgee GIF](https://rigby-web.fra1.digitaloceanspaces.com/medusa-multilanguage.gif)
+
 **Key Features of Tolgee**
 
 - **In-Context Translating**: Utilize Tolgee’s development tools to translate content directly on the frontend, providing a real-time, intuitive translating experience.
