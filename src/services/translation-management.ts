@@ -28,7 +28,7 @@ class TranslationManagementService extends TransactionBaseService {
     super(container);
 
     this.client_ = axios.create({
-      baseURL: `https://app.tolgee.io/v2/projects/${config.projectId}`,
+      baseURL: `${config.baseURL}/v2/projects/${config.projectId}`,
       headers: {
         Accept: "application/json",
         "X-API-Key": config.apiKey,
