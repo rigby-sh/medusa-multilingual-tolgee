@@ -28,7 +28,7 @@ class TranslationManagementService extends TransactionBaseService {
     super(container);
 
     this.client_ = axios.create({
-      baseURL: `${config.baseURL}/v2/projects/${config.projectId}`,
+      baseURL: `https://app.tolgee.io/v2/projects/${config.projectId}`,
       headers: {
         Accept: "application/json",
         "X-API-Key": config.apiKey,
@@ -127,10 +127,7 @@ class TranslationManagementService extends TransactionBaseService {
         results.push(result);
       }
     } catch (error) {
-      throw new MedusaError(
-        MedusaError.Types.UNEXPECTED_STATE,
-        `Failed to create translations for product ${productId}: ${error.message}`
-      );
+      console.error('Product already translated or error creating translations.');
     }
 
     return results;
