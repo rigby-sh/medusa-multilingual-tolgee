@@ -127,10 +127,7 @@ class TranslationManagementService extends TransactionBaseService {
         results.push(result);
       }
     } catch (error) {
-      throw new MedusaError(
-        MedusaError.Types.UNEXPECTED_STATE,
-        `Failed to create translations for product ${productId}: ${error.message}`
-      );
+      console.error('Product already translated or error creating translations.');
     }
 
     return results;
