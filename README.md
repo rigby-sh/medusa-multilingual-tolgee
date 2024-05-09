@@ -135,6 +135,14 @@ Congratulations! Your configuration is now complete, and you can start translati
 
 If you want to translate a word, press the ALT button and click on the word in the Value column.
 
+## How to use it on the frontend
+
+-**Next.js Pages Router**: [Tolgee Pages Router](https://tolgee.io/js-sdk/integrations/react/next/pages-router)
+
+-**Next.js App Router**: [Tolgee App Router](https://tolgee.io/js-sdk/integrations/react/next/app-router)
+
+-**Step-by-step guide of using it with Medusa storefront**: Coming soon
+
 ## Need help?
 
 If you have any questions, need help with installing or configuring the plugin, or require assistance with your Medusa project—we are here to help! 
@@ -158,7 +166,8 @@ Check out our project featured on Medusa: https://medusajs.com/blog/patyna/
 
 ####  Contact us
 
-💻 https://rigbyjs.com/en#contact 
+💻 https://rigbyjs.com/en#contact
+
 📧 hello@rigbyjs.com
 
 ## Useful Links
